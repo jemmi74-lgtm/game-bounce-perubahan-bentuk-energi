@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#182b68">
+<title>BounceQuiz AI — IPAS Kelas IV</title>
+<style>
+:root{--navy:#182b68;--ink:#1d2850;--muted:#64708d;--paper:#f5f7ff;--white:#fff;--pink:#ff668c;--yellow:#ffd45e;--blue:#5c9dff;--green:#25b887;--purple:#9b7bff;--shadow:0 14px 40px #17275b1c}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-rounded,"Trebuchet MS",system-ui,sans-serif;color:var(--ink);background:radial-gradient(circle at 10% 5%,#fff1c7 0,transparent 26%),radial-gradient(circle at 90% 20%,#e5dcff 0,transparent 28%),var(--paper);min-height:100vh}
+button{font:inherit;cursor:pointer;border:0} .app{max-width:1180px;margin:auto;padding:22px}
+header{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;background:var(--navy);color:white;padding:20px 24px;border-radius:24px;box-shadow:var(--shadow)}
+.brand{display:flex;align-items:center;gap:14px}.logo{font-size:34px;background:#ffffff20;border-radius:15px;padding:8px}.brand h1{font-size:clamp(23px,4vw,34px);margin:0;letter-spacing:-1px}.brand p{margin:4px 0 0;color:#d9e1ff;font-size:14px}
+.pills{display:flex;gap:9px;flex-wrap:wrap}.pill{background:#ffffff18;border:1px solid #ffffff35;padding:9px 13px;border-radius:30px;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin:17px 0}.stat{background:white;border-radius:17px;padding:15px 18px;box-shadow:var(--shadow)}.stat span{display:block;color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}.stat strong{font-size:25px;display:block;margin-top:4px}
+.instructions{display:flex;align-items:center;gap:10px;color:#465477;background:#fff9df;border:1px solid #ffe49a;padding:12px 16px;border-radius:14px;margin-bottom:14px;font-size:14px}
+.game-shell{background:#fff;border-radius:24px;padding:16px;box-shadow:var(--shadow)}.game-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 4px 12px}.game-top h2{font-size:19px;margin:0}.legend{font-size:12px;color:var(--muted)}
+#arena{height:490px;position:relative;overflow:hidden;border-radius:18px;background:linear-gradient(145deg,#dff3ff,#e8e4ff 55%,#fff0df);border:2px solid #e4eaff;isolation:isolate}
+#arena:before,#arena:after{content:"";position:absolute;border-radius:50%;background:#ffffff70;z-index:-1}#arena:before{width:220px;height:220px;left:-65px;top:-90px}#arena:after{width:300px;height:300px;right:-100px;bottom:-170px}
+.bubble{position:absolute;width:66px;height:66px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:900;font-size:20px;border:3px solid #ffffffb8;box-shadow:0 8px 16px #24356c30,inset 0 4px 7px #ffffff55;user-select:none;transition:transform .15s,filter .2s;z-index:2}.bubble:hover{transform:scale(1.12);filter:brightness(1.06)}.bubble:focus-visible{outline:4px solid var(--navy);outline-offset:3px}.bubble.done{background:#24b887!important;cursor:default}.bubble.done:after{content:"✓";position:absolute;right:-5px;top:-7px;background:white;color:#15966c;border-radius:50%;font-size:15px;width:23px;height:23px;display:grid;place-items:center;box-shadow:0 2px 5px #0002}.bubble:disabled{opacity:1}
+.arena-note{position:absolute;bottom:12px;left:0;right:0;text-align:center;color:#617095;font-size:12px;pointer-events:none}
+.progress-track{height:9px;background:#e9edfa;border-radius:20px;overflow:hidden;margin-top:12px}.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#5c9dff,#8d7aff,#ff668c);border-radius:20px;transition:width .35s}
+footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#77819b;font-size:12px;padding:14px 5px}
+.modal-backdrop{position:fixed;inset:0;background:#101a3db8;display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.modal-backdrop.show{display:flex}.modal{width:min(680px,100%);max-height:92vh;overflow:auto;background:white;border-radius:24px;padding:25px;box-shadow:0 25px 80px #0004;animation:pop .2s ease}@keyframes pop{from{transform:translateY(12px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.tag{font-size:12px;font-weight:800;padding:7px 11px;border-radius:30px;background:#edf2ff;color:#445caa}.close{background:#f0f2f8;color:#465477;border-radius:50%;width:36px;height:36px;font-size:20px}.modal h2{font-size:23px;line-height:1.35;margin:18px 0}.meta{color:var(--muted);font-size:13px}.choices{display:grid;gap:10px;margin:18px 0}.choice{display:flex;gap:12px;align-items:center;text-align:left;background:#f4f6fc;border:2px solid transparent;padding:13px 15px;border-radius:14px;color:var(--ink);font-weight:600}.choice b{background:white;border-radius:9px;padding:6px 9px;color:#5269b3}.choice.selected{border-color:#658cff;background:#edf2ff}.choice:disabled{cursor:default;opacity:1}.primary,.secondary,.score-btn{padding:12px 18px;border-radius:12px;font-weight:800}.primary{background:var(--navy);color:white}.primary:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#edf1ff;color:#42569a}.feedback{margin-top:15px;padding:15px;border-radius:14px;background:#effaf5;border:1px solid #bcebd8;line-height:1.55}.feedback.wrong{background:#fff2f1;border-color:#ffd0cb}.feedback h3{margin:0 0 5px;font-size:16px}.feedback p{margin:5px 0}.open-answer{background:#f6f7fc;padding:14px;border-radius:14px;line-height:1.55}.rubric{width:100%;border-collapse:collapse;margin:13px 0;font-size:13px}.rubric td,.rubric th{padding:9px;border-bottom:1px solid #e7eaf3;text-align:left}.rubric th{color:#64708d}.score-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.score-btn{background:#edf1ff;color:#3d559e}.score-btn.active{background:#dff8ed;color:#087a55;outline:2px solid #25b887}.teacher-note{font-size:12px;color:#68738e;margin-top:10px}
+.results{display:none;text-align:center;background:white;padding:34px 22px;border-radius:24px;box-shadow:var(--shadow);margin-top:18px}.results.show{display:block}.trophy{font-size:60px}.results h2{font-size:32px;margin:7px}.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:600px;margin:22px auto}.result-box{background:#f3f5fc;padding:14px;border-radius:14px}.result-box span{display:block;font-size:12px;color:var(--muted)}.result-box strong{font-size:25px}.final-score{font-size:46px;color:#425cc0;font-weight:900;margin:15px}.motivation{font-size:17px;margin:8px 0 20px}.hidden{display:none!important}
+@media(max-width:650px){.app{padding:12px}.stats{gap:8px}.stat{padding:12px}.stat strong{font-size:21px}#arena{height:540px}.bubble{width:56px;height:56px;font-size:18px}.modal{padding:19px}.result-grid{grid-template-columns:1fr 1fr}.instructions{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+ <div class="brand"><div class="logo">⚡</div><div><h1>BounceQuiz AI</h1><p>Belajar seru, pantulkan pengetahuanmu!</p></div></div>
+ <div class="pills"><span class="pill">IPAS • Kelas IV</span><span class="pill">Perubahan Bentuk Energi</span><span class="pill">Asesmen Formatif</span></div>
+</header>
+<section class="stats" aria-live="polite">
+ <div class="stat"><span>Progress</span><strong id="progressText">Terjawab 0 / 12</strong></div>
+ <div class="stat"><span>Skor benar</span><strong id="correctText">0</strong></div>
+ <div class="stat"><span>Belum dijawab</span><strong id="remainingText">12</strong></div>
+</section>
+<div class="instructions"><span>💡</span><span><b>Cara bermain:</b> Klik atau sentuh bola bernomor. Jawab tantangannya, lalu lanjutkan ke bola berikutnya. Setiap bola hanya dapat dimainkan satu kali.</span></div>
+<main class="game-shell" id="gameShell">
+ <div class="game-top"><h2>🎈 Area Pantulan Energi</h2><span class="legend">● Belum dijawab &nbsp; ● Selesai</span></div>
+ <div id="arena" aria-label="Area permainan berisi 12 bola bernomor"><div class="arena-note">Pilih bola mana saja untuk memulai tantangan!</div></div>
+ <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+</main>
+<section class="results" id="results">
+ <div class="trophy">🏆</div><h2>BounceQuiz Selesai!</h2><p>Semua tantangan sudah kamu selesaikan. Hebat!</p>
+ <div class="result-grid">
+  <div class="result-box"><span>Jumlah soal</span><strong>12</strong></div>
+  <div class="result-box"><span>Jawaban benar</span><strong id="finalCorrect">0</strong></div>
+  <div class="result-box"><span>Jawaban salah</span><strong id="finalWrong">0</strong></div>
+  <div class="result-box"><span>Soal lisan</span><strong>4</strong></div>
+  <div class="result-box"><span>Total skor</span><strong id="finalPoints">0</strong></div>
+  <div class="result-box"><span>Penyelesaian</span><strong>100%</strong></div>
+ </div>
+ <div class="final-score" id="finalScore">0</div><div class="motivation" id="motivation"></div>
+ <button class="primary" id="playAgain">↻ Main Lagi</button>
+</section>
+<footer><span>© BounceQuiz AI • Media pembelajaran IPAS</span><span>Semangat belajar dan terus eksplorasi!</span></footer>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="questionTitle">
+ <div class="modal">
+  <div class="modal-head"><span class="tag" id="questionTag">SOAL 1</span><button class="close" id="closeModal" aria-label="Tutup">×</button></div>
+  <div class="meta" id="questionMeta"></div><h2 id="questionTitle"></h2>
+  <div id="questionContent"></div><div id="feedbackArea"></div>
+ </div>
+</div>
+<script>
+const questions = [
+ {type:"mc",level:"Mudah",q:"Saat lampu di ruang kelas dinyalakan, energi listrik berubah menjadi energi ....",opts:["Bunyi","Cahaya","Gerak","Kimia"],ans:1,why:"Lampu menggunakan energi listrik dan mengubahnya terutama menjadi energi cahaya. Sebagian energi juga berubah menjadi panas.",oral:"Mengapa lampu dapat menerangi ruangan?",indicator:"Lampu mengubah energi listrik menjadi energi cahaya."},
+ {type:"mc",level:"Mudah",q:"Kipas angin yang sedang menyala menunjukkan perubahan energi ....",opts:["Listrik menjadi gerak","Cahaya menjadi bunyi","Panas menjadi kimia","Gerak menjadi listrik"],ans:0,why:"Energi listrik menggerakkan motor kipas sehingga baling-baling berputar. Gerakan baling-baling adalah energi gerak.",oral:"Sebutkan bagian kipas yang bergerak dan sumber energinya.",indicator:"Baling-baling bergerak karena motor menggunakan energi listrik."},
+ {type:"oral",level:"Mudah",q:"Ketika kamu bertepuk tangan, perubahan energi apa yang terjadi? Jelaskan.",indicator:"Energi gerak dari tangan berubah menjadi energi bunyi saat kedua telapak tangan bertumbukan.",guide:"Jawaban menyebutkan gerakan tangan (energi gerak) menghasilkan bunyi (energi bunyi)."},
+ {type:"mc",level:"Sedang",q:"Ibu memasak air menggunakan kompor gas. Energi kimia pada gas berubah terutama menjadi energi ....",opts:["Bunyi","Cahaya","Panas","Listrik"],ans:2,why:"Bahan bakar gas menyimpan energi kimia. Saat dibakar, energi kimia berubah menjadi energi panas yang memanaskan air.",oral:"Apa fungsi energi panas pada kegiatan memasak air?",indicator:"Energi panas menaikkan suhu air hingga menjadi panas atau mendidih."},
+ {type:"mc",level:"Sedang",q:"Panel surya pada atap rumah mengubah energi matahari menjadi energi ....",opts:["Listrik","Bunyi","Gerak","Kimia"],ans:0,why:"Panel surya menangkap cahaya matahari dan mengubahnya menjadi energi listrik yang dapat digunakan.",oral:"Sebutkan satu alat di rumah yang dapat menggunakan listrik dari panel surya.",indicator:"Contoh: lampu, kipas angin, atau pengisi daya yang mendapat listrik dari sistem panel surya."},
+ {type:"oral",level:"Sedang",q:"Jelaskan perubahan energi yang terjadi ketika radio dinyalakan menggunakan baterai.",indicator:"Energi kimia dalam baterai berubah menjadi energi listrik, kemudian radio menghasilkan energi bunyi.",guide:"Jawaban menyebutkan urutan kimia → listrik → bunyi."},
+ {type:"mc",level:"Sedang",q:"Saat setrika listrik digunakan, perubahan energi yang paling dibutuhkan adalah ....",opts:["Listrik menjadi panas","Panas menjadi cahaya","Bunyi menjadi gerak","Gerak menjadi listrik"],ans:0,why:"Elemen pemanas pada setrika mengubah energi listrik menjadi energi panas untuk merapikan pakaian.",oral:"Mengapa bagian bawah setrika terasa panas saat digunakan?",indicator:"Karena energi listrik diubah menjadi energi panas oleh elemen pemanas."},
+ {type:"mc",level:"Menantang",q:"Senter menggunakan baterai untuk menyalakan lampu. Urutan perubahan energi yang tepat adalah ....",opts:["Cahaya → listrik → kimia","Kimia → listrik → cahaya","Gerak → panas → cahaya","Bunyi → listrik → gerak"],ans:1,why:"Energi kimia yang tersimpan dalam baterai berubah menjadi energi listrik. Lampu senter kemudian mengubah energi listrik menjadi cahaya.",oral:"Apa yang terjadi jika baterai senter habis? Jelaskan hubungannya dengan energi.",indicator:"Senter tidak menyala atau redup karena baterai tidak lagi menyediakan energi listrik yang cukup."},
+ {type:"oral",level:"Sedang",q:"Sebuah bola dijatuhkan dari atas meja hingga menyentuh lantai. Ceritakan perubahan energi yang terjadi.",indicator:"Bola yang berada di ketinggian memiliki energi potensial. Saat jatuh, energi potensial berubah menjadi energi gerak; ketika membentur lantai dapat menghasilkan bunyi dan sedikit panas.",guide:"Jawaban menjelaskan energi potensial berubah menjadi energi gerak, lalu tumbukan menghasilkan bunyi."},
+ {type:"mc",level:"Menantang",q:"Ketika blender digunakan untuk menghaluskan buah, perubahan energi yang terjadi adalah ....",opts:["Energi listrik menjadi gerak dan bunyi","Energi bunyi menjadi listrik","Energi panas menjadi kimia","Energi cahaya menjadi gerak"],ans:0,why:"Motor blender mengubah energi listrik menjadi energi gerak pada pisau. Blender juga menghasilkan bunyi saat bekerja.",oral:"Mengapa blender mengeluarkan suara ketika digunakan?",indicator:"Karena motor dan pisau yang bergerak menimbulkan getaran yang menghasilkan bunyi."},
+ {type:"oral",level:"Menantang",q:"Perhatikan mobil mainan bertenaga baterai. Jelaskan perubahan energi dari baterai sampai mobil bergerak.",indicator:"Energi kimia dalam baterai berubah menjadi energi listrik, lalu motor mengubahnya menjadi energi gerak pada roda.",guide:"Jawaban menjelaskan urutan energi kimia → listrik → gerak dan mengaitkannya dengan roda mobil."},
+ {type:"mc",level:"Menantang",q:"Manakah pasangan alat dan perubahan energi yang tepat?",opts:["Panel surya: listrik menjadi cahaya","Bel listrik: listrik menjadi bunyi","Kipas angin: gerak menjadi kimia","Kompor gas: panas menjadi listrik"],ans:1,why:"Bel listrik menggunakan energi listrik untuk menghasilkan bunyi. Pilihan lain tidak sesuai dengan perubahan energi utama pada alat tersebut.",oral:"Berikan satu contoh lain alat yang mengubah energi listrik menjadi bunyi.",indicator:"Contoh: speaker, radio, alarm, atau pengeras suara."}
+];
+const colors=["#ff668c","#5c9dff","#9b7bff","#f3a83b","#25b887","#e879bd","#448cbd","#e17b4e","#6478d8","#54a89c","#b27bd9","#d69b37"];
+const arena=document.getElementById("arena"), backdrop=document.getElementById("modalBackdrop");
+let balls=[], completed=new Set(), scores=Array(12).fill(null), current=null, correct=0, points=0, animation=null, lastTime=0;
+const $=id=>document.getElementById(id);
+function makeBalls(){
+ arena.querySelectorAll(".bubble").forEach(b=>b.remove()); balls=[];
+ const w=arena.clientWidth,h=arena.clientHeight,size=66;
+ questions.forEach((_,i)=>{
+  const el=document.createElement("button");el.className="bubble";el.textContent=i+1;el.style.background=colors[i];el.setAttribute("aria-label","Bola nomor "+(i+1));
+  let x=12+Math.random()*Math.max(1,w-size-24),y=12+Math.random()*Math.max(1,h-size-55);
+  let vx=(Math.random()>.5?1:-1)*(0.65+Math.random()*.8),vy=(Math.random()>.5?1:-1)*(0.55+Math.random()*.9);
+  el.addEventListener("click",()=>openQuestion(i));arena.appendChild(el);balls.push({el,x,y,vx,vy,size});
+ }); positionBalls();
+}
+function positionBalls(){balls.forEach(b=>{b.el.style.transform=`translate(${b.x}px,${b.y}px)`;b.el.style.left="0";b.el.style.top="0"});}
+function animate(t){if(!lastTime)lastTime=t;const dt=Math.min((t-lastTime)/16.67,2);lastTime=t;const w=arena.clientWidth,h=arena.clientHeight;
+ balls.forEach(b=>{if(completed.has(Number(b.el.textContent)-1))return;b.x+=b.vx*dt;b.y+=b.vy*dt;const maxX=w-b.size-5,maxY=h-b.size-35;if(b.x<5){b.x=5;b.vx=Math.abs(b.vx)}if(b.x>maxX){b.x=maxX;b.vx=-Math.abs(b.vx)}if(b.y<5){b.y=5;b.vy=Math.abs(b.vy)}if(b.y>maxY){b.y=maxY;b.vy=-Math.abs(b.vy)}b.el.style.transform=`translate(${b.x}px,${b.y}px)`;});
+ animation=requestAnimationFrame(animate);
+}
+function startAnimation(){cancelAnimationFrame(animation);lastTime=0;animation=requestAnimationFrame(animate)}
+function openQuestion(i){
+ if(completed.has(i))return;current=i;const q=questions[i];
+ $("questionTag").textContent=`BOLA ${i+1} • ${q.type==="mc"?"PILIHAN GANDA":"JAWAB LISAN"}`;
+ $("questionMeta").textContent=`IPAS Kelas IV · Tingkat kesulitan: ${q.level}`;
+ $("questionTitle").textContent=q.q;$("feedbackArea").innerHTML="";
+ const content=$("questionContent");content.innerHTML="";
+ if(q.type==="mc"){
+  const wrap=document.createElement("div");wrap.className="choices";
+  q.opts.forEach((opt,j)=>{const btn=document.createElement("button");btn.className="choice";btn.innerHTML=`<b>${"ABCD"[j]}</b><span></span>`;btn.querySelector("span").textContent=opt;btn.addEventListener("click",()=>{wrap.querySelectorAll("button").forEach(x=>x.classList.remove("selected"));btn.classList.add("selected");wrap.dataset.answer=j;check.disabled=false});wrap.appendChild(btn)});
+  const check=document.createElement("button");check.className="primary";check.textContent="Periksa Jawaban";check.disabled=true;check.addEventListener("click",()=>finishMC(i,Number(wrap.dataset.answer),wrap));content.append(wrap,check);
+ }else{
+  const box=document.createElement("div");box.className="open-answer";box.innerHTML="<b>Petunjuk untuk siswa</b><br>Berpikir sejenak, lalu sampaikan jawabanmu dengan suara jelas. Guru akan memberikan skor berdasarkan ketepatan jawaban.";
+  const rubric=document.createElement("table");rubric.className="rubric";rubric.innerHTML="<tr><th>Penilaian guru</th><th>Skor</th></tr><tr><td>Sangat tepat, sesuai indikator</td><td>100</td></tr><tr><td>Sebagian benar / cukup tepat</td><td>50</td></tr><tr><td>Belum tepat</td><td>0</td></tr>";
+  const label=document.createElement("p");label.className="teacher-note";label.textContent="Bagian berikut digunakan guru setelah siswa menjawab secara lisan.";
+  const actions=document.createElement("div");actions.className="score-actions";
+  [100,50,0].forEach(s=>{const b=document.createElement("button");b.className="score-btn";b.textContent=`Beri ${s} poin`;b.addEventListener("click",()=>finishOral(i,s));actions.appendChild(b)});
+  content.append(box,rubric,label,actions);
+ }
+ backdrop.classList.add("show");$("closeModal").focus();
+}
+function finishMC(i,chosen,wrap){
+ const q=questions[i],right=chosen===q.ans;const pts=right?100:0;
+ wrap.querySelectorAll("button").forEach((b,j)=>{b.disabled=true;if(j===q.ans)b.style.borderColor="#25b887";if(j===chosen&&!right)b.style.borderColor="#ff786f"});
+ wrap.nextElementSibling.disabled=true;
+ addScore(i,pts,right);
+ $("feedbackArea").innerHTML=`<div class="feedback ${right?"":"wrong"}"><h3>${right?"🎉 Tepat sekali!":"💪 Belum tepat, tetap semangat!"}</h3><p><b>Jawaban benar:</b> ${"ABCD"[q.ans]}. ${q.opts[q.ans]}</p><p><b>Pembahasan:</b> ${q.why}</p><p><b>Pertanyaan penguatan:</b> ${q.oral}</p><p><b>Indikator jawaban:</b> ${q.indicator}</p><button class="primary" style="margin-top:8px" onclick="closeAndContinue()">Selesai</button></div>`;
+}
+function finishOral(i,pts){
+ const q=questions[i];addScore(i,pts,pts===100);
+ $("questionContent").querySelectorAll(".score-btn").forEach(b=>b.disabled=true);
+ $("feedbackArea").innerHTML=`<div class="feedback ${pts===0?"wrong":""}"><h3>${pts===100?"🌟 Jawaban sangat tepat!":pts===50?"👍 Terima kasih sudah mencoba!":"🌱 Ayo belajar lagi!"}</h3><p><b>Skor guru:</b> ${pts} poin</p><p><b>Indikator jawaban:</b> ${q.indicator}</p><p><b>Pedoman jawaban:</b> ${q.guide||q.indicator}</p><button class="primary" style="margin-top:8px" onclick="closeAndContinue()">Selesai</button></div>`;
+}
+function addScore(i,pts,isCorrect){if(completed.has(i))return;completed.add(i);scores[i]=pts;points+=pts;if(isCorrect)correct++;const b=balls[i].el;b.classList.add("done");b.disabled=true;b.textContent=i+1;updateStats()}
+function updateStats(){const n=completed.size;$("progressText").textContent=`Terjawab ${n} / 12`;$("correctText").textContent=correct;$("remainingText").textContent=12-n;$("progressFill").style.width=(n/12*100)+"%";if(n===12)showResults()}
+function closeAndContinue(){backdrop.classList.remove("show");current=null;if(completed.size===12) $("results").scrollIntoView({behavior:"smooth",block:"center"})}
+function showResults(){const wrong=12-correct,score=Math.round(points/1200*100);$("finalCorrect").textContent=correct;$("finalWrong").textContent=wrong;$("finalPoints").textContent=points;$("finalScore").textContent=score;$("motivation").textContent=score>=90?"Luar biasa! Kamu hebat dalam memahami perubahan energi!":score>=75?"Bagus sekali! Terus tingkatkan pengetahuanmu!":score>=60?"Hebat! Ayo belajar lagi agar semakin memahami perubahan energi!":"Jangan menyerah! Terus berlatih, kamu pasti bisa!";$("results").classList.add("show");$("gameShell").classList.add("hidden")}
+function resetGame(){completed=new Set();scores=Array(12).fill(null);correct=0;points=0;$("results").classList.remove("show");$("gameShell").classList.remove("hidden");makeBalls();updateStats();$("gameShell").scrollIntoView({behavior:"smooth"})}
+$("closeModal").addEventListener("click",()=>backdrop.classList.remove("show"));backdrop.addEventListener("click",e=>{if(e.target===backdrop&&!completed.has(current))return;if(e.target===backdrop)backdrop.classList.remove("show")});
+$("playAgain").addEventListener("click",resetGame);
+window.addEventListener("resize",()=>{if(!completed.size)makeBalls()});
+makeBalls();startAnimation();updateStats();
+</script>
+</body>
+</html>
